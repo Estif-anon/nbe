@@ -39,7 +39,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         child: Column(
-          spacing: 9,
+          // spacing: 9,
           children: [
             CommonTextField(
                 borderRadius: 15,

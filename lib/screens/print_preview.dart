@@ -1,5 +1,4 @@
 import 'package:nbe/libs.dart';
-import 'package:pdf/widgets.dart' as pw;
 import 'package:intl/intl.dart';
 
 class PrintPreviewScreen extends StatefulWidget {

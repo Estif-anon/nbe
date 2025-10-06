@@ -129,7 +129,7 @@ class _ReportScreenState extends State<ReportScreen> {
         ),
         actions: [
           Padding(
-              padding: const EdgeInsetsGeometry.only(right: 4),
+              padding: const EdgeInsets.only(right: 4),
               child: IconButton(
                   onPressed: () {
                     _showPrintDialog(context);

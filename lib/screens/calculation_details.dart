@@ -85,7 +85,6 @@ class _CalculationDetailsState extends State<CalculationDetails> {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         child: SingleChildScrollView(
           child: Column(
-            spacing: 6,
             children: [
               Row(
                 children: [

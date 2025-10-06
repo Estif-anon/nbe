@@ -50,6 +50,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     size: 17,
                   ),
                 ),
+                enabled: false,
                 suffix: const Text('%'),
                 controller: immediatePaymentController,
                 label: 'Immediate Payment Amount',

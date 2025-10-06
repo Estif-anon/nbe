@@ -59,6 +59,19 @@ class SettingLocalProvider {
     }).toList();
   }
 
+  Future<List<Setting>> getAllSettings() async {
+    final db = await wrapper.database;
+    final result = await db.query(
+      tableName,
+      orderBy: _createdAtCol,
+    );
+    return result.map((el) {
+      return Setting.fromJson(
+        el,
+      );
+    }).toList();
+  }
+
   Future<Setting?> getSettingByID(String id) async {
     final db = await wrapper.database;
     final result =

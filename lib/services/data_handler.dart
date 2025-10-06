@@ -119,3 +119,9 @@ String currencyFormatter(double value) {
   final formattedValue = formatter.format(value);
   return '$formattedValue ብር';
 }
+
+String currencyFormatterForPrint(double value) {
+  final formatter = NumberFormat('#,##0.##');
+  final formattedValue = formatter.format(value);
+  return '$formattedValue Birr';
+}

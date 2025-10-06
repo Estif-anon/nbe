@@ -1,5 +1,6 @@
 import 'package:nbe/libs.dart';
 import 'package:intl/intl.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 class PrintPreviewScreen extends StatefulWidget {
   final List<Transaction> transactions;
@@ -62,11 +63,13 @@ class _PrintPreviewScreenState extends State<PrintPreviewScreen> {
                                 fontSize: 14, color: PdfColors.grey600),
                           ),
                           pw.Text(
-                              '${currencyFormatter(tx.totalAmount).substring(0, (currencyFormatter(tx.totalAmount).length - 3))} Birr',
-                              style: pw.TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: pw.FontWeight.bold,
-                                  color: PdfColors.black)),
+                            '${currencyFormatter(tx.totalAmount).substring(0, (currencyFormatter(tx.totalAmount).length - 3))} Birr',
+                            style: pw.TextStyle(
+                              fontSize: 14,
+                              fontWeight: pw.FontWeight.bold,
+                              color: PdfColors.black,
+                            ),
+                          ),
                         ],
                       );
                     },

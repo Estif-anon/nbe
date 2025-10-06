@@ -12,3 +12,6 @@ export 'dart:io';
 export 'package:path_provider/path_provider.dart';
 export 'package:file_picker/file_picker.dart';
 export 'package:permission_handler/permission_handler.dart';
+export 'package:flutter_bloc/flutter_bloc.dart';
+export 'states/states.dart';
+export 'bloc/bloc.dart';

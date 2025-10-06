@@ -38,7 +38,17 @@ void main() {
   final sellRecordProvider = SellRecordLocalProvider(nbeDB);
   final settingProvider = SettingLocalProvider(nbeDB);
 
-  runApp(const MyApp());
+  runApp(MultiBlocProvider(
+    providers: [
+      BlocProvider<SettingsBloc>(create: (context) {
+        return SettingsBloc(settingProvider);
+      }),
+      BlocProvider<SellRecordBloc>(create: (context) {
+        return SellRecordBloc(sellRecordProvider);
+      })
+    ],
+    child: const MyApp(),
+  ));
 }
 
 MaterialColor ourMainThemeColor = MaterialColor(

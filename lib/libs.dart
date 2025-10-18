@@ -15,3 +15,4 @@ export 'package:permission_handler/permission_handler.dart';
 export 'package:flutter_bloc/flutter_bloc.dart';
 export 'states/states.dart';
 export 'bloc/bloc.dart';
+export 'types/transaction_types.dart';

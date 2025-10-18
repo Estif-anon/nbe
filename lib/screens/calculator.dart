@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:nbe/bloc/transaction_bloc.dart';
 import 'package:nbe/libs.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -100,7 +101,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     );
   }
 
-  Transaction? _calculate() {
+  void _calculate() {
     final settingsBloc = context.read<SettingsBloc>();
 
     final settingsId =
@@ -129,7 +130,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
     final rate = pricesMap[estimatedCarat.toString()];
     final totalAmount = (double.tryParse(rate ?? '') ?? 0) * weight;
-    return Transaction(
+    final transaction = Transaction(
       id: uuid.v4(),
       date: DateTime.now(),
       specificGravity: specificGravity,
@@ -140,6 +141,9 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       settingId: settingsId,
       karat: estimatedCarat.toString(),
     );
+    context
+        .read<TransactionBloc>()
+        .add(AddTransaction(transaction: transaction));
   }
 
   @override
@@ -388,17 +392,17 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                   "Calculate",
                   () {
                     final transaction = _calculate();
-                    if (transaction == null) {
-                      return;
-                    }
+                    // if (transaction == null) {
+                    //   return;
+                    // }
                     _specificGravityController.clear();
                     _weightController.clear();
                     ScaffoldMessenger.of(context).hideCurrentSnackBar();
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (ctx) => CalculationDetails(
-                          transaction: transaction,
-                        ),
+                        builder: (ctx) => const CalculationDetails(
+                            // transaction: transaction,
+                            ),
                       ),
                     );
                   },

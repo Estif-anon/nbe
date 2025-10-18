@@ -1,8 +1,8 @@
+import 'package:nbe/bloc/transaction_bloc.dart';
 import 'package:nbe/libs.dart';
 
 class CalculationDetails extends StatefulWidget {
-  final Transaction transaction;
-  const CalculationDetails({required this.transaction, super.key});
+  const CalculationDetails({super.key});
   @override
   State<CalculationDetails> createState() => _CalculationDetailsState();
 }
@@ -23,7 +23,13 @@ class _CalculationDetailsState extends State<CalculationDetails> {
   double netCompleted = 0;
 
   void calculateValues() {
-    final tran = widget.transaction;
+    late final Transaction tran;
+    final transactionState = context.read<TransactionBloc>().state;
+    if (transactionState is TransactionCreated) {
+      tran = transactionState.transaction;
+    } else {
+      return;
+    }
     setState(() {
       immediatePaymentValue = immediatePayment * tran.totalAmount;
       taxValue = tax * tran.weight;
@@ -40,11 +46,18 @@ class _CalculationDetailsState extends State<CalculationDetails> {
     final db = NBEDatabase.constructor([
       SettingLocalProvider.createOrReplaceTableString(),
     ]);
+    late final Transaction tran;
+    final transactionState = context.read<TransactionBloc>().state;
+    if (transactionState is TransactionCreated) {
+      tran = transactionState.transaction;
+    } else {
+      return;
+    }
     setState(() {
       isSaving = true;
     });
     await DataHandler.instance.ensureTableExists('Transactions');
-    await DataHandler.instance.addTransactionToDb(widget.transaction);
+    await DataHandler.instance.addTransactionToDb(tran);
     await SettingLocalProvider(db).insertSetting(
         ((context.read<SettingsBloc>().state) as SettingsLoaded)
             .settings

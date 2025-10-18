@@ -1,3 +1,6 @@
+import 'package:nbe/bloc/transaction_bloc.dart';
+import 'package:path/path.dart';
+
 import 'libs.dart';
 
 final ThemeData theme = ThemeData(
@@ -48,6 +51,9 @@ void main() {
       ),
       BlocProvider<SellRecordBloc>(create: (context) {
         return SellRecordBloc(sellRecordProvider);
+      }),
+      BlocProvider<TransactionBloc>(create: (context) {
+        return TransactionBloc();
       })
     ],
     child: const MyApp(),

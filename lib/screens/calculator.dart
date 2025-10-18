@@ -1,10 +1,8 @@
 import 'dart:convert';
 
-// import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:nbe/libs.dart';
-// import 'package:nbe/screens/calculation_details.dart';
-// import 'package:nbe/services/data_handler.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -23,7 +21,6 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       TextEditingController();
   Map<String, String> pricesMap = {};
   final url = 'https://api.nbe.gov.et/api/filter-gold-rates';
-  Setting _setting = Setting(uuid.v4(), 0, 5000, 0.0001, 0.1);
 
   //to check if the day has changed
   bool areSameDates(DateTime day1, DateTime day2) {
@@ -96,7 +93,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
             label: 'Retry',
             onPressed: () {
               _getPurchasingRate();
-              _getSettings();
+              // _getSettings();
               ScaffoldMessenger.of(context).hideCurrentSnackBar();
             }),
       ),
@@ -104,6 +101,11 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   }
 
   Transaction? _calculate() {
+    final settingsBloc = context.read<SettingsBloc>();
+
+    final settingsId =
+        (settingsBloc.state as SettingsLoaded).settings.values.last.id;
+
     final weight = double.tryParse(_weightController.text);
     final specificGravity = double.tryParse(_specificGravityController.text);
     if (weight == null || specificGravity == null) {
@@ -135,33 +137,15 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       totalAmount: totalAmount,
       weight: weight,
       isCompleted: true,
-      settingId: _setting.id,
+      settingId: settingsId,
       karat: estimatedCarat.toString(),
     );
-  }
-
-  void _getSettings() async {
-    final db = NBEDatabase.constructor([
-      SettingLocalProvider.createOrReplaceTableString(),
-    ]);
-    final recentSettings =
-        await SettingLocalProvider(db).getRecentSettings(0, 10);
-    if (recentSettings.isNotEmpty) {
-      setState(() {
-        _setting = recentSettings.last;
-      });
-    } else {
-      setState(() {
-        _setting = Setting(uuid.v4(),
-            double.tryParse(pricesMap['24'] ?? '') ?? 0, 5000, 0.0001, 0.1);
-      });
-    }
   }
 
   @override
   void initState() {
     _getPurchasingRate();
-    _getSettings();
+    context.read<SettingsBloc>().add(SettingsLoadEvent());
     super.initState();
   }
 
@@ -259,82 +243,88 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               height: MediaQuery.of(context).size.height * .15,
               child: Stack(
                 children: [
-                  TitledContainer(
-                    "Settings",
-                    [
-                      Row(children: [
-                        Expanded(
-                          flex: 2,
-                          child: Text(
-                            'Immediate Payment Amount ',
-                            style: _commonLabelStyle,
-                          ),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Text(
-                            '95%',
-                            style: _commonLabelStyle,
-                          ),
-                        ),
-                      ]),
-                      Row(children: [
-                        Expanded(
-                          flex: 2,
-                          child: Text('Tax per gram', style: _commonLabelStyle),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Text('${_setting.taxPerGram} EtB',
-                              style: _commonLabelStyle),
-                        ),
-                      ]),
-                      Row(children: [
-                        Expanded(
-                          flex: 2,
-                          child: Text('Bank Fee in percent:',
-                              style: _commonLabelStyle),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Text('${_setting.bankFeePercentage * 100}%',
-                              style: _commonLabelStyle),
-                        ),
-                      ]),
-                      Row(
-                        children: [
-                          Expanded(
-                              flex: 2,
-                              child: Text('Bonus by NBE:',
-                                  style: _commonLabelStyle)),
-                          Expanded(
-                            flex: 1,
-                            child: Text(
-                              '${_setting.excludePercentage * 100}%',
-                              style: _commonLabelStyle,
-                            ),
-                          )
-                        ],
-                      )
-                    ],
+                  BlocBuilder<SettingsBloc, SettingsState>(
+                    builder: (context, state) {
+                      if (state is SettingsInit) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (state is SettingsLoaded) {
+                        return TitledContainer(
+                          "Settings",
+                          [
+                            Row(children: [
+                              Expanded(
+                                flex: 2,
+                                child: Text(
+                                  'Immediate Payment Amount ',
+                                  style: _commonLabelStyle,
+                                ),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: Text(
+                                  '95%',
+                                  style: _commonLabelStyle,
+                                ),
+                              ),
+                            ]),
+                            Row(children: [
+                              Expanded(
+                                flex: 2,
+                                child: Text('Tax per gram',
+                                    style: _commonLabelStyle),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: Text(
+                                    '${state.settings.values.last.taxPerGram} EtB',
+                                    style: _commonLabelStyle),
+                              ),
+                            ]),
+                            Row(children: [
+                              Expanded(
+                                flex: 2,
+                                child: Text('Bank Fee in percent:',
+                                    style: _commonLabelStyle),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: Text(
+                                    '${state.settings.values.last.bankFeePercentage * 100}%',
+                                    style: _commonLabelStyle),
+                              ),
+                            ]),
+                            Row(
+                              children: [
+                                Expanded(
+                                    flex: 2,
+                                    child: Text('Bonus by NBE:',
+                                        style: _commonLabelStyle)),
+                                Expanded(
+                                  flex: 1,
+                                  child: Text(
+                                    '${state.settings.values.last.excludePercentage * 100}%',
+                                    style: _commonLabelStyle,
+                                  ),
+                                )
+                              ],
+                            )
+                          ],
+                        );
+                      } else {
+                        return const Text('Error');
+                      }
+                    },
                   ),
                   Positioned(
                     top: 0,
                     right: 0,
                     child: IconButton(
                       onPressed: () async {
-                        final Setting? newSetting = await Navigator.of(context)
-                            .push(MaterialPageRoute(
-                                builder: (ctx) => SettingsScreen(
-                                    nbe24KaratRate: double.tryParse(
-                                            pricesMap['24'] ?? '') ??
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (ctx) => SettingsScreen(
+                                nbe24KaratRate:
+                                    double.tryParse(pricesMap['24'] ?? '') ??
                                         0)));
-
-                        if (newSetting != null) {
-                          setState(() {
-                            _setting = newSetting;
-                          });
-                        }
                       },
                       splashColor: Theme.of(context).primaryColor,
                       icon: Container(
@@ -392,23 +382,27 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               ),
             ),
             const SizedBox(height: 10),
-            FancyWideButton(
-              "Calculate",
-              () {
-                final transaction = _calculate();
-                if (transaction == null) {
-                  return;
-                }
-                _specificGravityController.clear();
-                _weightController.clear();
-                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (ctx) => CalculationDetails(
-                      transaction: transaction,
-                      setting: _setting,
-                    ),
-                  ),
+            BlocBuilder<SettingsBloc, SettingsState>(
+              builder: (context, state) {
+                return FancyWideButton(
+                  "Calculate",
+                  () {
+                    final transaction = _calculate();
+                    if (transaction == null) {
+                      return;
+                    }
+                    _specificGravityController.clear();
+                    _weightController.clear();
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (ctx) => CalculationDetails(
+                          transaction: transaction,
+                        ),
+                      ),
+                    );
+                  },
+                  enabled: state is SettingsLoaded,
                 );
               },
             ),

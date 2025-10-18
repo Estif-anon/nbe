@@ -13,12 +13,9 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final TextEditingController immediatePaymentController =
       TextEditingController(text: '95');
-  final TextEditingController taxController =
-      TextEditingController(text: '5000');
-  final TextEditingController bankFeeController =
-      TextEditingController(text: '0.01');
-  final TextEditingController bonusController =
-      TextEditingController(text: '10');
+  final TextEditingController taxController = TextEditingController();
+  final TextEditingController bankFeeController = TextEditingController();
+  final TextEditingController bonusController = TextEditingController();
 
   Widget _createPrefixWidget(IconData icon) {
     return Padding(
@@ -31,6 +28,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   @override
+  void initState() {
+    final settingsBloc = context.read<SettingsBloc>();
+    if (settingsBloc.state is SettingsLoaded) {
+      final theLastSetting =
+          (settingsBloc.state as SettingsLoaded).settings.values.last;
+      taxController.text = theLastSetting.taxPerGram.toString();
+      bankFeeController.text =
+          (theLastSetting.bankFeePercentage * 100).toString();
+      bonusController.text =
+          (theLastSetting.excludePercentage * 100).toString();
+    }
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    bankFeeController.dispose();
+    taxController.dispose();
+    immediatePaymentController.dispose();
+    bonusController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -39,7 +60,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         child: Column(
-          // spacing: 9,
           children: [
             CommonTextField(
                 borderRadius: 15,
@@ -94,7 +114,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 bankFee / 100,
                 bonus / 100,
               );
-              Navigator.of(context).pop(setting);
+              context
+                  .read<SettingsBloc>()
+                  .add(AddSettingEvent(setting: setting));
+              Navigator.of(context).pop();
             })
           ],
         ),

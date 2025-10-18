@@ -2,9 +2,7 @@ import 'package:nbe/libs.dart';
 
 class CalculationDetails extends StatefulWidget {
   final Transaction transaction;
-  final Setting setting;
-  const CalculationDetails(
-      {required this.transaction, required this.setting, super.key});
+  const CalculationDetails({required this.transaction, super.key});
   @override
   State<CalculationDetails> createState() => _CalculationDetailsState();
 }
@@ -47,7 +45,11 @@ class _CalculationDetailsState extends State<CalculationDetails> {
     });
     await DataHandler.instance.ensureTableExists('Transactions');
     await DataHandler.instance.addTransactionToDb(widget.transaction);
-    await SettingLocalProvider(db).insertSetting(widget.setting);
+    await SettingLocalProvider(db).insertSetting(
+        ((context.read<SettingsBloc>().state) as SettingsLoaded)
+            .settings
+            .values
+            .last);
 
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -63,9 +65,13 @@ class _CalculationDetailsState extends State<CalculationDetails> {
 
   @override
   void initState() {
-    tax = widget.setting.taxPerGram;
-    bankFee = widget.setting.bankFeePercentage;
-    bonus = widget.setting.excludePercentage;
+    final setting = ((context.read<SettingsBloc>().state) as SettingsLoaded)
+        .settings
+        .values
+        .last;
+    tax = setting.taxPerGram;
+    bankFee = setting.bankFeePercentage;
+    bonus = setting.excludePercentage;
     calculateValues();
     super.initState();
   }

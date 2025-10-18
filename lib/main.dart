@@ -40,9 +40,12 @@ void main() {
 
   runApp(MultiBlocProvider(
     providers: [
-      BlocProvider<SettingsBloc>(create: (context) {
-        return SettingsBloc(settingProvider);
-      }),
+      BlocProvider<SettingsBloc>(
+        create: (context) {
+          return SettingsBloc(settingProvider);
+        },
+        lazy: false,
+      ),
       BlocProvider<SellRecordBloc>(create: (context) {
         return SellRecordBloc(sellRecordProvider);
       })
